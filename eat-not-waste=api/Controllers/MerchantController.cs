@@ -30,9 +30,9 @@ public class MerchantController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<MerchantDto> CreateMerchant(MerchantDto merchantDto)
+    public ActionResult<MerchantDto> CreateMerchant(CreateMerchantDto createMerchantDto)
     {
-        var merchant = _merchantService.CreateMerchant(merchantDto);
+        var merchant = _merchantService.CreateMerchant(createMerchantDto);
         return CreatedAtAction(nameof(GetMerchantById), new { id = merchant.Id }, merchant);
     }
 

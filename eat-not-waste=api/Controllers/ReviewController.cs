@@ -31,9 +31,9 @@ public class ReviewController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<ReviewDto> CreateReview(ReviewDto reviewDto)
+    public ActionResult<ReviewDto> CreateReview(CreateReviewDto createReviewDto)
     {
-        var review = _reviewService.CreateReview(reviewDto);
+        var review = _reviewService.CreateReview(createReviewDto);
         return CreatedAtAction(nameof(GetReviewById), new { id = review.Id }, review);
     }
 

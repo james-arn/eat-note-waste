@@ -33,9 +33,9 @@ namespace eat_not_waste_api.Controllers
 
         // POST: api/purchase
         [HttpPost]
-        public IActionResult CreatePurchase([FromBody] PurchaseDto purchaseDto)
+        public IActionResult CreatePurchase([FromBody] CreatePurchaseDto createPurchaseDto)
         {
-            var purchase = _purchaseService.CreatePurchase(purchaseDto);
+            var purchase = _purchaseService.CreatePurchase(createPurchaseDto);
             return CreatedAtAction(nameof(GetPurchaseById), new { id = purchase.Id }, purchase);
         }
 

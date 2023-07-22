@@ -33,9 +33,9 @@ public class ListingController : ControllerBase
 
     // POST api/listing
     [HttpPost]
-    public ActionResult<ListingDto> CreateListing(ListingDto listingDto)
+    public ActionResult<ListingDto> CreateListing(CreateListingDto createListingDto)
     {
-        var listing = _listingService.CreateListing(listingDto);
+        var listing = _listingService.CreateListing(createListingDto);
         return CreatedAtAction(nameof(GetListing), new { id = listing.Id }, listing);
     }
 

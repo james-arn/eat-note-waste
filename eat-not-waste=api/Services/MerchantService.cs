@@ -30,9 +30,9 @@ public class MerchantService
         return _mapper.Map<MerchantDto>(merchant);
     }
 
-    public MerchantDto CreateMerchant(MerchantDto merchantDto)
+    public MerchantDto CreateMerchant(CreateMerchantDto createMerchantDto)
     {
-        var merchant = _mapper.Map<Merchant>(merchantDto);
+        var merchant = _mapper.Map<Merchant>(createMerchantDto);
         _context.Merchants.Add(merchant);
         _context.SaveChanges();
 

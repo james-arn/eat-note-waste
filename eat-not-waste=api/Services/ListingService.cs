@@ -29,9 +29,9 @@ public class ListingService
         return _mapper.Map<ListingDto>(listing);
     }
 
-    public ListingDto CreateListing(ListingDto listingDto)
+    public ListingDto CreateListing(CreateListingDto createListingDto)
     {
-        var listing = _mapper.Map<Listing>(listingDto);
+        var listing = _mapper.Map<Listing>(createListingDto);
         _context.Listings.Add(listing);
         _context.SaveChanges();
 

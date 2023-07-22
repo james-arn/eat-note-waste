@@ -37,9 +37,9 @@ namespace eat_not_waste_api.Controllers
 
         // POST api/customer
         [HttpPost]
-        public ActionResult<CustomerDto> CreateCustomer(CustomerDto customerDto)
+        public ActionResult<CreateCustomerDto> CreateCustomer(CreateCustomerDto createCustomerDto)
         {
-            var customer = _customerService.CreateCustomer(customerDto);
+            var customer = _customerService.CreateCustomer(createCustomerDto);
             return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, customer);
         }
 

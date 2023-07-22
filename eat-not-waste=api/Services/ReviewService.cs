@@ -16,14 +16,14 @@ namespace eat_not_waste_api.Services
             _mapper = mapper;
         }
 
-        public ReviewDto CreateReview(ReviewDto reviewDto)
+        public ReviewDto CreateReview(CreateReviewDto createReviewDto)
         {
-            if (reviewDto.Rating < 1 || reviewDto.Rating > 5)
+            if (createReviewDto.Rating < 1 || createReviewDto.Rating > 5)
             {
                 throw new ArgumentException("Rating must be between 1 and 5");
             }
 
-            var review = _mapper.Map<Review>(reviewDto);
+            var review = _mapper.Map<Review>(createReviewDto);
             _context.Reviews.Add(review);
             _context.SaveChanges();
 

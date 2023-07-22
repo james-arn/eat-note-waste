@@ -28,9 +28,9 @@ namespace eat_not_waste_api.Services
             return purchase == null ? null : _mapper.Map<PurchaseDto>(purchase);
         }
 
-        public PurchaseDto CreatePurchase(PurchaseDto purchaseDto)
+        public PurchaseDto CreatePurchase(CreatePurchaseDto createPurchaseDto)
         {
-            var purchase = _mapper.Map<Purchase>(purchaseDto);
+            var purchase = _mapper.Map<Purchase>(createPurchaseDto);
             _context.Purchases.Add(purchase);
             _context.SaveChanges();
             return _mapper.Map<PurchaseDto>(purchase);

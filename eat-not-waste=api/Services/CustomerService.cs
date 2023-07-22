@@ -28,9 +28,9 @@ namespace eat_not_waste_api.Services
             return _mapper.Map<CustomerDto>(customer);
         }
 
-        public CustomerDto CreateCustomer(CustomerDto customerDto)
+        public CustomerDto CreateCustomer(CreateCustomerDto createCustomerDto)
         {
-            var customer = _mapper.Map<Customer>(customerDto);
+            var customer = _mapper.Map<Customer>(createCustomerDto);
             _context.Customers.Add(customer);
             _context.SaveChanges();
 
