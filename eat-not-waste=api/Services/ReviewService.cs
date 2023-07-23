@@ -23,6 +23,20 @@ namespace eat_not_waste_api.Services
                 throw new ArgumentException("Rating must be between 1 and 5");
             }
 
+            // Validate that the customer and merchant exist
+            var customer = _context.Customers.Find(createReviewDto.CustomerId);
+            var merchant = _context.Merchants.Find(createReviewDto.MerchantId);
+
+            if (customer == null)
+            {
+                throw new ArgumentException("Customer not found");
+            }
+
+            if (merchant == null)
+            {
+                throw new ArgumentException("Merchant not found");
+            }
+
             var review = _mapper.Map<Review>(createReviewDto);
             _context.Reviews.Add(review);
             _context.SaveChanges();

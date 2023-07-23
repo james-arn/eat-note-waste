@@ -1,7 +1,9 @@
 using eat_not_waste_api.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using eat_not_waste_api.Services;
+using eat_not_waste_api.Enums;
+using eat_not_waste_api.Exceptions;
+using Serilog;
 
 namespace eat_not_waste_api.Controllers
 {
@@ -39,8 +41,32 @@ namespace eat_not_waste_api.Controllers
         [HttpPost]
         public ActionResult<CreateCustomerDto> CreateCustomer(CreateCustomerDto createCustomerDto)
         {
-            var customer = _customerService.CreateCustomer(createCustomerDto);
-            return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, customer);
+            try
+            {
+                var customer = _customerService.CreateCustomer(createCustomerDto);
+                return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, customer);
+            }
+            catch (EmailExistsException ex)
+            {
+                return Conflict(new { error = ex.ErrorCode, message = ex.Message });
+            }
+            catch (InvalidEmailException ex)
+            {
+                return BadRequest(new { error = ex.ErrorCode, message = ex.Message });
+            }
+            catch (PasswordDoesNotMeetRequirementsException ex)
+            {
+                return BadRequest(new { error = ex.ErrorCode, message = ex.Message });
+            }
+            catch (UserAuthenticationFailedException ex)
+            {
+                return Unauthorized(new { error = ex.ErrorCode, message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An unexpected error occurred while trying to create a customer");
+                return StatusCode(500, new { message = "An unexpected error occurred. Please try again later." });
+            }
         }
 
         // PUT api/customers/{id}

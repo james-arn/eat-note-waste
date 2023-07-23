@@ -29,7 +29,6 @@ namespace eat_not_waste_api.Data
                 Email = "sample@mail.com",
                 Password = "pass1234",
                 Location = "Sample City",
-                Preferences = "Sample Preferences"
             });
 
             modelBuilder.Entity<Merchant>().HasData(new Merchant

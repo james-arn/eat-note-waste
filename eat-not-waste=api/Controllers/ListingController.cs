@@ -1,5 +1,6 @@
 using eat_not_waste_api.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -12,12 +13,16 @@ public class ListingController : ControllerBase
         _listingService = listingService;
     }
 
-    // GET api/listing
     [HttpGet]
-    public ActionResult<IEnumerable<ListingDto>> GetListings([FromQuery] string location)
+    public ActionResult<IEnumerable<ListingDto>> GetAllListings(
+        string location = null,
+        bool includeExpired = false,
+        bool includeOutOfStock = false)
     {
-        return Ok(_listingService.GetAllListings(location));
+        var listings = _listingService.GetAllListings(location, includeExpired, includeOutOfStock);
+        return Ok(listings);
     }
+
 
     // GET api/listing/{id}
     [HttpGet("{id}")]
@@ -35,8 +40,16 @@ public class ListingController : ControllerBase
     [HttpPost]
     public ActionResult<ListingDto> CreateListing(CreateListingDto createListingDto)
     {
-        var listing = _listingService.CreateListing(createListingDto);
-        return CreatedAtAction(nameof(GetListing), new { id = listing.Id }, listing);
+        try
+        {
+            var listing = _listingService.CreateListing(createListingDto);
+            return CreatedAtAction(nameof(GetListing), new { id = listing.Id }, listing);
+        }
+        catch (ArgumentException ex)
+        {
+            Log.Error(ex, "Failed to create listing with details: {@createListingDto}", createListingDto);
+            return BadRequest(ex.Message);
+        }
     }
 
     // PUT api/listing/{id}

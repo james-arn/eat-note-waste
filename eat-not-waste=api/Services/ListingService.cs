@@ -14,14 +14,28 @@ public class ListingService
         _mapper = mapper;
     }
 
-    public List<ListingDto> GetAllListings(string location = null)
+    public List<ListingDto> GetAllListings(string location = null, bool includeExpired = false, bool includeOutOfStock = false)
     {
-        var listings = string.IsNullOrEmpty(location)
-            ? _context.Listings.ToList()
-            : _context.Listings.Where(l => l.Location == location).ToList();
+        var listings = _context.Listings.AsQueryable();
 
-        return _mapper.Map<List<ListingDto>>(listings);
+        if (!string.IsNullOrEmpty(location))
+        {
+            listings = listings.Where(l => l.Location == location);
+        }
+
+        if (!includeExpired)
+        {
+            listings = listings.Where(l => l.ExpirationDate > DateTime.Now);
+        }
+
+        if (!includeOutOfStock)
+        {
+            listings = listings.Where(l => l.Quantity > 0);
+        }
+
+        return _mapper.Map<List<ListingDto>>(listings.ToList());
     }
+
 
     public ListingDto GetListingById(int id)
     {
@@ -31,6 +45,25 @@ public class ListingService
 
     public ListingDto CreateListing(CreateListingDto createListingDto)
     {
+        // Check merhant exists that's creating the listing
+        var merchant = _context.Customers.Find(createListingDto.MerchantId);
+        if (merchant == null)
+        {
+            throw new ArgumentException("Customer not found");
+        }
+
+        // Ensure quantity ad price are a range
+        if (createListingDto.Quantity <= 0 || createListingDto.Quantity > 50)
+        {
+            throw new ArgumentException("Quantity must be between 1 and 50.");
+        }
+
+        if (createListingDto.Price <= 0 || createListingDto.Price > 20)
+        {
+            throw new ArgumentException("Price must be between 0.01 and 20.00.");
+        }
+
+        // Proceed creating listing
         var listing = _mapper.Map<Listing>(createListingDto);
         _context.Listings.Add(listing);
         _context.SaveChanges();

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using eat_not_waste_api.Services;
 using eat_not_waste_api.DTOs;
+using eat_not_waste_api.Models;
+using Serilog;
 
 namespace eat_not_waste_api.Controllers
 {
@@ -35,8 +37,21 @@ namespace eat_not_waste_api.Controllers
         [HttpPost]
         public IActionResult CreatePurchase([FromBody] CreatePurchaseDto createPurchaseDto)
         {
-            var purchase = _purchaseService.CreatePurchase(createPurchaseDto);
-            return CreatedAtAction(nameof(GetPurchaseById), new { id = purchase.Id }, purchase);
+            try
+            {
+                var purchase = _purchaseService.CreatePurchase(createPurchaseDto);
+                return CreatedAtAction(nameof(GetPurchaseById), new { id = purchase.Id }, purchase);
+            }
+            catch (ArgumentException exception)
+            {
+                Log.Error(exception, "Failed to create listing with details: {@createPurchaseDto}", createPurchaseDto);
+                return NotFound(new { message = exception.Message });
+            }
+            catch (InvalidOperationException exception)
+            {
+                Log.Error(exception, "Failed to create listing with details: {@createPurchaseDto}", createPurchaseDto);
+                return BadRequest(new { message = exception.Message });
+            }
         }
 
         // PUT: api/purchase/{id}

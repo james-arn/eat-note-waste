@@ -1,6 +1,8 @@
 using AutoMapper;
 using eat_not_waste_api.Data;
 using eat_not_waste_api.DTOs;
+using eat_not_waste_api.Exceptions;
+using eat_not_waste_api.Helpers;
 using eat_not_waste_api.Models;
 
 namespace eat_not_waste_api.Services
@@ -30,6 +32,25 @@ namespace eat_not_waste_api.Services
 
         public CustomerDto CreateCustomer(CreateCustomerDto createCustomerDto)
         {
+            // Check if email is valid
+            if (!UserRegisterLoginService.IsValidEmail(createCustomerDto.Email))
+            {
+                throw new InvalidEmailException();
+            }
+
+            // Check if email is unique
+            var existingCustomer = _context.Customers.SingleOrDefault(c => c.Email == createCustomerDto.Email);
+            if (existingCustomer != null)
+            {
+                throw new EmailExistsException();
+            }
+
+            // Check if password meets complexity requirements
+            if (!UserRegisterLoginService.PasswordMeetsRequirements(createCustomerDto.Password))
+            {
+                throw new PasswordDoesNotMeetRequirementsException();
+            }
+
             var customer = _mapper.Map<Customer>(createCustomerDto);
             _context.Customers.Add(customer);
             _context.SaveChanges();

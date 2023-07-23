@@ -1,6 +1,7 @@
 using AutoMapper;
 using eat_not_waste_api.Data;
 using eat_not_waste_api.DTOs;
+using eat_not_waste_api.Exceptions;
 using eat_not_waste_api.Models;
 
 namespace eat_not_waste_api.Services
@@ -30,7 +31,36 @@ namespace eat_not_waste_api.Services
 
         public PurchaseDto CreatePurchase(CreatePurchaseDto createPurchaseDto)
         {
+            // Check customer can be found
+            var customer = _context.Customers.Find(createPurchaseDto.CustomerId);
+            if (customer == null)
+            {
+                throw new ArgumentException("Customer not found");
+            }
+
+            // Check listing can be found
+            var listing = _context.Listings.Find(createPurchaseDto.ListingId);
+            if (listing == null)
+            {
+                throw new ArgumentException("Listing not found");
+            }
+            // Check if the listing has expired, if yes, don't allow purchase.
+            if (DateTime.Now > listing.ExpirationDate)
+            {
+                throw new ListingExpiredException();
+            }
+            // Check in stock
+            if (listing.Quantity < createPurchaseDto.Quantity)
+            {
+                throw new OutOfStockException();
+            }
+
+            // Decrement the quantity of the listing
+            listing.Quantity -= createPurchaseDto.Quantity;
+
+            // Proceed with purchase
             var purchase = _mapper.Map<Purchase>(createPurchaseDto);
+            purchase.PurchaseDate = DateTime.UtcNow;
             _context.Purchases.Add(purchase);
             _context.SaveChanges();
             return _mapper.Map<PurchaseDto>(purchase);

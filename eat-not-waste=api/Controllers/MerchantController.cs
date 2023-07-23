@@ -1,5 +1,7 @@
 using eat_not_waste_api.DTOs;
+using eat_not_waste_api.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -32,8 +34,32 @@ public class MerchantController : ControllerBase
     [HttpPost]
     public ActionResult<MerchantDto> CreateMerchant(CreateMerchantDto createMerchantDto)
     {
-        var merchant = _merchantService.CreateMerchant(createMerchantDto);
-        return CreatedAtAction(nameof(GetMerchantById), new { id = merchant.Id }, merchant);
+        try
+        {
+            var merchant = _merchantService.CreateMerchant(createMerchantDto);
+            return CreatedAtAction(nameof(GetMerchantById), new { id = merchant.Id }, merchant);
+        }
+        catch (EmailExistsException ex)
+        {
+            return Conflict(new { error = ex.ErrorCode, message = ex.Message });
+        }
+        catch (InvalidEmailException ex)
+        {
+            return BadRequest(new { error = ex.ErrorCode, message = ex.Message });
+        }
+        catch (PasswordDoesNotMeetRequirementsException ex)
+        {
+            return BadRequest(new { error = ex.ErrorCode, message = ex.Message });
+        }
+        catch (UserAuthenticationFailedException ex)
+        {
+            return Unauthorized(new { error = ex.ErrorCode, message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "An unexpected error occurred while trying to create a customer");
+            return StatusCode(500, new { message = "An unexpected error occurred. Please try again later." });
+        }
     }
 
     [HttpPut("{id}")]

@@ -8,7 +8,6 @@ namespace eat_not_waste_api.Models
         public string Email { get; set; }
         public string Password { get; set; }
         public string Location { get; set; }
-        public string Preferences { get; set; }
 
         // Navigation properties
         public ICollection<Purchase> Purchases { get; set; }
