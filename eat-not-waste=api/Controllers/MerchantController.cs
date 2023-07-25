@@ -1,5 +1,6 @@
 using eat_not_waste_api.DTOs;
 using eat_not_waste_api.Exceptions;
+using eat_not_waste_api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
@@ -8,10 +9,12 @@ using Serilog;
 public class MerchantController : ControllerBase
 {
     private readonly MerchantService _merchantService;
+    private readonly AuthService _authService;
 
-    public MerchantController(MerchantService merchantService)
+    public MerchantController(MerchantService merchantService, AuthService authService)
     {
         _merchantService = merchantService;
+        _authService = authService;
     }
 
     [HttpGet]
@@ -36,7 +39,7 @@ public class MerchantController : ControllerBase
     {
         try
         {
-            var merchant = _merchantService.CreateMerchant(createMerchantDto);
+            var merchant = _authService.RegisterMerchant(createMerchantDto);
             return CreatedAtAction(nameof(GetMerchantById), new { id = merchant.Id }, merchant);
         }
         catch (EmailExistsException ex)

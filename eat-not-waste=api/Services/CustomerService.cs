@@ -11,11 +11,17 @@ namespace eat_not_waste_api.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly JwtAuthService _jwtAuthService;
 
-        public CustomerService(ApplicationDbContext context, IMapper mapper)
+        public CustomerService(
+            ApplicationDbContext context, 
+            IMapper mapper, 
+            JwtAuthService jwtAuthService
+            )
         {
             _context = context;
             _mapper = mapper;
+            _jwtAuthService = jwtAuthService;
         }
 
         public List<CustomerDto> GetAllCustomers()
@@ -30,36 +36,7 @@ namespace eat_not_waste_api.Services
             return _mapper.Map<CustomerDto>(customer);
         }
 
-        public CustomerDto CreateCustomer(CreateCustomerDto createCustomerDto)
-        {
-            // Check if email is valid
-            if (!UserRegisterLoginService.IsValidEmail(createCustomerDto.Email))
-            {
-                throw new InvalidEmailException();
-            }
-
-            // Check if email is unique
-            var existingCustomer = _context.Customers.SingleOrDefault(c => c.Email == createCustomerDto.Email);
-            if (existingCustomer != null)
-            {
-                throw new EmailExistsException();
-            }
-
-            // Check if password meets complexity requirements
-            if (!UserRegisterLoginService.PasswordMeetsRequirements(createCustomerDto.Password))
-            {
-                throw new PasswordDoesNotMeetRequirementsException();
-            }
-
-            var customer = _mapper.Map<Customer>(createCustomerDto);
-            _context.Customers.Add(customer);
-            _context.SaveChanges();
-
-            // Refetch the customer object from the database
-            var customerEntity = _context.Customers.Find(customer.Id);
-
-            return _mapper.Map<CustomerDto>(customerEntity);
-        }
+        // note - creating a customer is in the AuthenticationService.
 
         public CustomerDto UpdateCustomer(int id, CustomerDto customerDto)
         {

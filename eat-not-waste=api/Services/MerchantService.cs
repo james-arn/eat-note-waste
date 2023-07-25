@@ -4,16 +4,23 @@ using eat_not_waste_api.DTOs;
 using eat_not_waste_api.Exceptions;
 using eat_not_waste_api.Helpers;
 using eat_not_waste_api.Models;
+using eat_not_waste_api.Services;
 
 public class MerchantService
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
+    private readonly JwtAuthService _jwtAuthService;
 
-    public MerchantService(ApplicationDbContext context, IMapper mapper)
+    public MerchantService(
+        ApplicationDbContext context, 
+        IMapper mapper,
+        JwtAuthService jwtAuthService
+        )
     {
         _context = context;
         _mapper = mapper;
+        _jwtAuthService = jwtAuthService;
     }
 
     public List<MerchantDto> GetAllMerchants()
@@ -32,35 +39,7 @@ public class MerchantService
         return _mapper.Map<MerchantDto>(merchant);
     }
 
-    public MerchantDto CreateMerchant(CreateMerchantDto createMerchantDto)
-    {
-        // Check if email is unique
-        var existingMerchant = _context.Merchants.SingleOrDefault(m => m.Email == createMerchantDto.Email);
-        if (existingMerchant != null)
-        {
-            throw new EmailExistsException();
-        }
-
-        // Check if email is valid
-        if (!UserRegisterLoginService.IsValidEmail(createMerchantDto.Email))
-        {
-            throw new InvalidEmailException();
-        }
-
-        // Check if password meets complexity requirements
-        if (!UserRegisterLoginService.PasswordMeetsRequirements(createMerchantDto.Password))
-        {
-            throw new PasswordDoesNotMeetRequirementsException();
-        }
-        var merchant = _mapper.Map<Merchant>(createMerchantDto);
-        _context.Merchants.Add(merchant);
-        _context.SaveChanges();
-
-        // Refetch the merchant object from the database
-        var merchantEntity = _context.Merchants.Find(merchant.Id);
-
-        return _mapper.Map<MerchantDto>(merchantEntity);
-    }
+    // note - creating a merchant is handled in AuthenticationService.cs
 
     public MerchantDto UpdateMerchant(int id, MerchantDto merchantDto)
     {

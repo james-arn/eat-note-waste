@@ -4,6 +4,7 @@ using eat_not_waste_api.Services;
 using eat_not_waste_api.Enums;
 using eat_not_waste_api.Exceptions;
 using Serilog;
+using Microsoft.AspNetCore.Authentication;
 
 namespace eat_not_waste_api.Controllers
 {
@@ -12,10 +13,12 @@ namespace eat_not_waste_api.Controllers
     public class CustomerController : ControllerBase
     {
         private readonly CustomerService _customerService;
+        private readonly AuthService _authService;
 
-        public CustomerController(CustomerService customerService)
+        public CustomerController(CustomerService customerService, AuthService authService)
         {
             _customerService = customerService;
+            _authService = authService;
         }
 
         // GET api/customers
@@ -39,11 +42,11 @@ namespace eat_not_waste_api.Controllers
 
         // POST api/customer
         [HttpPost]
-        public ActionResult<CreateCustomerDto> CreateCustomer(CreateCustomerDto createCustomerDto)
+        public ActionResult<LoginDto> CreateCustomer(LoginDto createCustomerDto)
         {
             try
             {
-                var customer = _customerService.CreateCustomer(createCustomerDto);
+                var customer = _authService.RegisterCustomer(createCustomerDto);
                 return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, customer);
             }
             catch (EmailExistsException ex)

@@ -10,8 +10,8 @@ namespace eat_not_waste_api.Mappings
         {
             CreateMap<Customer, CustomerDto>();
             CreateMap<CustomerDto, Customer>();
-            CreateMap<Customer, CreateCustomerDto>();
-            CreateMap<CreateCustomerDto, Customer>();
+            CreateMap<Customer, LoginDto>();
+            CreateMap<LoginDto, Customer>();
 
             CreateMap<Listing, ListingDto>();
             CreateMap<ListingDto, Listing>();
